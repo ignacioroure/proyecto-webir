@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "title": "Sombras en el subte",
+    "year": "2019",
+    "genres": ["Terror", "Misterio"],
+    "overview": "Una guardia nocturna del subterraneo empieza a escuchar pasos en tuneles clausurados. Cuanto mas se interna en las galerias abandonadas bajo la ciudad, menos distingue entre lo que persigue y lo que la persigue a ella.",
+    "vote_average": 6.8,
+    "poster_path": null
+  },
+  {
+    "id": 2,
+    "title": "El ultimo vagon",
+    "year": "2021",
+    "genres": ["Drama", "Suspenso"],
+    "overview": "Un maquinista a punto de jubilarse descubre que alguien manipula los registros de seguridad de la linea. Su investigacion lo enfrenta a la empresa y a su propio pasado como delegado sindical.",
+    "vote_average": 7.2,
+    "poster_path": null
+  },
+  {
+    "id": 3,
+    "title": "Casa vacia",
+    "year": "2017",
+    "genres": ["Terror"],
+    "overview": "Una familia se muda a una casona rural heredada de un pariente lejano. Las paredes conservan marcas que nadie explica y por las noches el sotano parece respirar.",
+    "vote_average": 6.1,
+    "poster_path": null
+  },
+  {
+    "id": 4,
+    "title": "Cartografia de un naufragio",
+    "year": "2020",
+    "genres": ["Aventura", "Drama"],
+    "overview": "Tres hermanos zarpan a cumplir la ultima voluntad de su padre y una tormenta los deja a la deriva. Sin instrumentos ni radio, deben aprender a navegar guiandose por las estrellas.",
+    "vote_average": 7.5,
+    "poster_path": null
+  },
+  {
+    "id": 5,
+    "title": "Protocolo Aurora",
+    "year": "2022",
+    "genres": ["Ciencia ficcion", "Accion"],
+    "overview": "Una ingeniera descubre que la inteligencia artificial que diseño para optimizar el transporte urbano empezo a decidir quien llega tarde y quien no llega nunca.",
+    "vote_average": 7.0,
+    "poster_path": null
+  },
+  {
+    "id": 6,
+    "title": "Verano en Chascomus",
+    "year": "2018",
+    "genres": ["Comedia", "Romance"],
+    "overview": "Dos amigos de la infancia se reencuentran en la laguna despues de quince años. Entre asados, caminatas y malentendidos, tratan de entender por que dejaron de hablarse.",
+    "vote_average": 6.9,
+    "poster_path": null
+  },
+  {
+    "id": 7,
+    "title": "La hora del apagon",
+    "year": "2023",
+    "genres": ["Suspenso", "Terror"],
+    "overview": "Un corte masivo de energia deja a una megalopolis sin luz durante cinco noches. En los edificios sin ascensor ni agua, los vecinos descubren que el peligro real no viene de la oscuridad sino del piso de al lado.",
+    "vote_average": 7.3,
+    "poster_path": null
+  },
+  {
+    "id": 8,
+    "title": "Cuaderno de campo",
+    "year": "2016",
+    "genres": ["Documental"],
+    "overview": "Un bioLogo registra durante una decada el retroceso de un glaciar patagonico. Sus anotaciones personales se vuelven el retrato de una perdida que excede lo cientifico.",
+    "vote_average": 8.0,
+    "poster_path": null
+  },
+  {
+    "id": 9,
+    "title": "Robo a mano armada",
+    "year": "2015",
+    "genres": ["Crimen", "Accion"],
+    "overview": "Una banda planea durante meses el asalto a un banco del microcentro porteño. El plan es perfecto hasta que uno de ellos decide improvisar en el peor momento posible.",
+    "vote_average": 6.6,
+    "poster_path": null
+  },
+  {
+    "id": 10,
+    "title": "Instrucciones para volar",
+    "year": "2021",
+    "genres": ["Animacion", "Familia"],
+    "overview": "Un pichon de hornero que le teme a las alturas emprende la migracion junto a una bandada que no lo quiere. En el camino descubre que volar se parece mas a confiar que a saber.",
+    "vote_average": 7.8,
+    "poster_path": null
+  },
+  {
+    "id": 11,
+    "title": "El inquilino del octavo",
+    "year": "2014",
+    "genres": ["Misterio", "Suspenso"],
+    "overview": "Un hombre alquila un departamento en un edificio antiguo del centro y empieza a sospechar que los vecinos esperan que se comporte exactamente como el inquilino anterior.",
+    "vote_average": 7.1,
+    "poster_path": null
+  },
+  {
+    "id": 12,
+    "title": "Campeonato de barrio",
+    "year": "2019",
+    "genres": ["Comedia", "Deporte"],
+    "overview": "Un equipo de futbol amateur formado por jubilados se anota en un torneo juvenil por un error administrativo. Deciden no aclarar nada y jugar hasta donde el cuerpo aguante.",
+    "vote_average": 7.4,
+    "poster_path": null
+  }
+]

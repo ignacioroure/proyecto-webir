@@ -1,0 +1,15 @@
+# Entornos
+.venv/
+__pycache__/
+*.pyc
+
+# Secretos
+.env
+
+# Artefactos del índice (se regeneran con `python -m src.build_index`)
+index/*.npz
+index/*.pkl
+index/*.npy
+
+# Sistema
+.DS_Store
