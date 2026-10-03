@@ -45,6 +45,18 @@ python -m src.search "terror, ciudad" --top-k 10
 Sin argumentos, `src.search` entra en modo interactivo. Con `--method tfidf` o
 `--method embeddings` corre uno solo de los dos.
 
+### Interfaz web
+
+```bash
+python -m src.server
+```
+
+y abrir <http://127.0.0.1:8000>. Muestra los resultados de los dos métodos lado
+a lado, con el puntaje y el tiempo que tardó cada uno. Busca mientras escribís y
+permite filtrar por género y época; el filtro se aplica antes de elegir los
+mejores resultados, no después. Cada búsqueda queda en la URL: recargar la
+repite, y Atrás/Adelante del navegador recorren las búsquedas anteriores.
+
 Para conseguir la API key: registrarse en [TMDB](https://www.themoviedb.org/signup)
 y generarla en [Configuración → API](https://www.themoviedb.org/settings/api).
 Es gratuita.
@@ -56,6 +68,8 @@ src/fetch_movies.py   Descarga N películas de TMDB      -> data/movies.json
 src/corpus.py         Carga el corpus y arma el texto indexable
 src/build_index.py    Vectoriza los resúmenes           -> index/*.pkl, *.npz
 src/search.py         Vectoriza la consulta y rankea por coseno
+src/server.py         API (FastAPI) y servidor de la interfaz
+web/                  Interfaz: HTML, CSS y JS sin dependencias
 ```
 
 El punto clave del diseño: **la consulta se vectoriza con exactamente el mismo
@@ -71,9 +85,11 @@ multiplicación matriz-vector.
 - **Qué se indexa.** No solo el resumen: se concatena `título + géneros +
   resumen`. Los géneros son una señal corta pero muy informativa, y hacen que
   una consulta como `"terror"` matchee aunque el resumen nunca use la palabra.
-- **Stopwords propias.** scikit-learn solo trae lista en inglés
-  (`src/stopwords.py`). Sin ella, términos como *de*, *la* o *que* dominan el
-  vocabulario.
+- **Stopwords.** scikit-learn solo trae lista en inglés. Se usa la lista
+  estándar de Snowball para español, ampliada con palabras que en este corpus
+  aparecen en decenas de resúmenes sin aportar significado (*después*, *puede*,
+  *hace*...) (`src/stopwords.py`). Sin ella, términos como *de*, *la* o *que*
+  dominan el vocabulario.
 - **`sublinear_tf=True`.** Pondera `1 + log(tf)` en vez de la frecuencia cruda:
   que un término aparezca 10 veces no lo hace 10 veces más relevante.
 - **`min_df=2`, `max_df=0.5`.** Descartan términos que aparecen en un solo
@@ -81,42 +97,53 @@ multiplicación matriz-vector.
 - **Modelo multilingüe.** `paraphrase-multilingual-MiniLM-L12-v2` mapea español
   e inglés al mismo espacio, así que la consulta puede estar en un idioma y el
   resumen en otro.
+- **Resúmenes largos en fragmentos.** El modelo lee como máximo 128 tokens y
+  descarta el resto sin avisar, y 227 de los 800 documentos son más largos. Se
+  parten entre oraciones, se vectoriza cada fragmento y la película queda
+  representada por el promedio de sus fragmentos, pesado por su largo.
+- **Índices atados al corpus.** Cada índice guarda los ids de las películas que
+  contiene. Si el corpus cambia sin reindexar, el buscador avisa en vez de
+  mostrar películas equivocadas.
 
 ## Resultados
 
 Medidos sobre el corpus real: 800 películas de TMDB, resúmenes en español,
-vocabulario TF-IDF de 5407 términos.
+vocabulario TF-IDF de 5165 términos.
 
 ### Consulta por keywords: `"terror, ciudad"`
 
 | # | TF-IDF | Embeddings |
 |---|---|---|
-| 1 | Scream (0.222) | Insidious: Fuera del más allá (0.624) |
-| 2 | Resident Evil: Raccoon City (0.194) | Cuenta atrás (0.599) |
-| 3 | Weapons (0.187) | Terrifier 3 (0.577) |
+| 1 | Scream (0.226) | 28 días después (0.627) |
+| 2 | Weapons (0.208) | Insidious: Fuera del más allá (0.624) |
+| 3 | Resident Evil: Raccoon City (0.200) | Cuenta atrás (0.599) |
 
 Gana TF-IDF: sus tres primeros cumplen las dos condiciones a la vez. Los
-embeddings traen buen terror pero fallan en lo urbano — *Hokum*, 4ª, transcurre
-en una posada rural irlandesa.
+embeddings aciertan con *28 días después* (Londres desierto tras una epidemia),
+pero después se reparten: *Insidious* es terror sobrenatural donde lo urbano es
+secundario, y *Cuenta atrás* es pura ciudad sin terror (una bomba sin explotar
+en el centro de Londres).
 
 ### Consulta descriptiva: `"un padre que hace lo imposible por recuperar a su hija"`
 
 | # | TF-IDF | Embeddings |
 |---|---|---|
-| 1 | **Venganza (0.252)** | Señora Doubtfire (0.630) |
-| 2 | Kraven the Hunter (0.132) | **Venganza (0.566)** |
-| 3 | Aladdin (0.126) | A la carrera (0.545) |
+| 1 | **Venganza (0.228)** | Señora Doubtfire (0.630) |
+| 2 | El rey león (0.145) | **Venganza (0.566)** |
+| 3 | Origen (0.144) | A la carrera (0.545) |
 
 Ambos encuentran *Venganza*, que es la respuesta correcta. TF-IDF la pone 1ª con
-el doble de puntaje que la siguiente; los embeddings la ponen 2ª.
+clara ventaja sobre la siguiente (0.228 contra 0.145); los embeddings la ponen
+2ª.
 
 ### Lectura
 
 Ninguno de los dos domina. Lo que cambia es **cómo fallan**:
 
 - **TF-IDF matchea términos aislados y pierde la relación entre ellos.**
-  *Aladdín* entra en el top-3 porque su resumen contiene "hija" y habla de un
-  padre (el sultán), aunque la trama no tenga nada que ver.
+  *Origen* entra en el top-3 porque su resumen dice que Cobb podría "recuperar"
+  su vida si logra "lo imposible": no hay padre ni hija, pero comparte dos
+  términos con la consulta.
 - **Los embeddings capturan el tema general y pierden el específico.**
   *Señora Doubtfire* encabeza porque es intensamente "sobre un padre", pero no
   hay ninguna hija que recuperar.
@@ -138,7 +165,7 @@ comparable es el **orden** dentro de cada columna, no la magnitud entre ellas.
 ## Limitaciones conocidas
 
 - El corpus de demostración (12 películas) solo sirve para verificar que el
-  pipeline corre: con `min_df=2` el vocabulario queda en 14 términos. Cualquier
+  pipeline corre: con `min_df=2` el vocabulario queda en 13 términos. Cualquier
   conclusión sobre los métodos hay que sacarla del corpus completo.
 - El corpus son las 800 películas más populares de TMDB, o sea un sesgo fuerte
   hacia cine comercial reciente y de Hollywood. Los resultados no se
