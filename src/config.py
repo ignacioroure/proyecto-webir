@@ -10,6 +10,7 @@ load_dotenv()
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 INDEX_DIR = ROOT / "index"
+WEB_DIR = ROOT / "web"
 
 MOVIES_JSON = DATA_DIR / "movies.json"
 SAMPLE_MOVIES_JSON = DATA_DIR / "sample_movies.json"
@@ -18,6 +19,7 @@ EMBEDDINGS_INDEX = INDEX_DIR / "embeddings.npz"
 
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
+TMDB_POSTER_URL = "https://image.tmdb.org/t/p/w185"
 
 # Modelo multilingue: mapea espanol e ingles al mismo espacio vectorial,
 # asi la consulta puede estar en un idioma y el resumen en otro.
