@@ -22,8 +22,8 @@ from src.corpus import load_movies
 from src.search import EmbeddingSearcher, TfidfSearcher
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
+def load_state(app: FastAPI) -> None:
+    """Carga corpus, indices y modelo en el estado de la aplicacion."""
     movies = load_movies()
     app.state.movies = movies
     app.state.searchers = {
@@ -33,6 +33,15 @@ async def lifespan(app: FastAPI):
     # El modelo se carga perezosamente: lo forzamos aca para que la primera
     # consulta no tarde varios segundos.
     app.state.searchers["embeddings"].model
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # main() ya cargo todo antes de arrancar uvicorn, para que un indice
+    # faltante corte con su mensaje y no con un traceback desde aca adentro.
+    # Esto cubre el caso de levantar la app con `uvicorn src.server:app`.
+    if not hasattr(app.state, "searchers"):
+        load_state(app)
     yield
 
 
@@ -122,6 +131,9 @@ def main() -> None:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
+    # Antes de arrancar el servidor: si falta un indice, sys.exit muestra su
+    # mensaje limpio en vez de quedar envuelto en el traceback del lifespan.
+    load_state(app)
     uvicorn.run(app, host=args.host, port=args.port)
 
 

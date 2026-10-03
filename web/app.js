@@ -47,7 +47,9 @@ function readForm() {
 }
 
 function toParams(state) {
-  const params = new URLSearchParams({ q: state.q, k: state.k });
+  const params = new URLSearchParams();
+  if (state.q) params.set("q", state.q);
+  params.set("k", state.k);
   if (state.genre) params.set("genre", state.genre);
   if (state.decade) params.set("decade", state.decade);
   return params;
@@ -258,12 +260,27 @@ function resetResults() {
   showStats(corpusSize);
 }
 
+// Sin consulta (o con menos letras de las necesarias) los resultados en
+// pantalla ya no corresponden a lo que se ve escrito: se limpian, y la URL
+// deja de apuntar a la busqueda anterior.
+function clearSearch() {
+  const params = toParams(readForm());
+  if (`?${params}` === location.search) return;
+  typingEntry = false;
+  updateHistory(params, "replace");
+  resetResults();
+}
+
 // --- Eventos --------------------------------------------------------------
 
 const searchWhileTyping = debounce(() => {
   const state = readForm();
+  if (state.q.length < MIN_TYPED_LENGTH) {
+    clearSearch();
+    return;
+  }
   // Si la URL ya es esta busqueda (se escribio y se borro), no hay nada nuevo.
-  if (state.q.length < MIN_TYPED_LENGTH || `?${toParams(state)}` === location.search) return;
+  if (`?${toParams(state)}` === location.search) return;
   search(state, typingEntry ? "replace" : "push");
   typingEntry = true;
 }, 300);
@@ -274,6 +291,7 @@ function commitSearch() {
   typingEntry = false;
   const state = readForm();
   if (state.q) search(state, "push");
+  else clearSearch();
 }
 
 queryInput.addEventListener("input", searchWhileTyping);

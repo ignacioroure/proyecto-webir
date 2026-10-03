@@ -34,6 +34,15 @@ def check_corpus(index_ids, movies: list[dict], index_name: str) -> None:
         )
 
 
+def no_candidates(allowed: np.ndarray | None) -> bool:
+    """True si el filtro no dejo ninguna pelicula en carrera.
+
+    Puntuar igual seria trabajo tirado, y en el caso de los embeddings cuesta
+    un forward pass del modelo (cientos de milisegundos) para devolver [].
+    """
+    return allowed is not None and not allowed.any()
+
+
 class TfidfSearcher:
     """Modelo de espacio vectorial clasico: bolsa de palabras ponderada."""
 
@@ -63,6 +72,8 @@ class TfidfSearcher:
     def search(
         self, query: str, k: int, allowed: np.ndarray | None = None
     ) -> list[tuple[int, float]]:
+        if no_candidates(allowed):
+            return []
         # Puntaje 0 = ningun termino en comun con la consulta: esas peliculas
         # serian relleno, no resultados.
         results = top_k(self.score(query), k, allowed)
@@ -100,6 +111,8 @@ class EmbeddingSearcher:
     def search(
         self, query: str, k: int, allowed: np.ndarray | None = None
     ) -> list[tuple[int, float]]:
+        if no_candidates(allowed):
+            return []
         return top_k(self.score(query), k, allowed)
 
 
